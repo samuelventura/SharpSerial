@@ -16,6 +16,8 @@ No documentation yet. Resort to tests at SharpSerial.Test subproject for guidanc
 ## Development CLI
 
 ```bash
+#WSL grant access to /dev/ttyS*
+
 #packing for nuget
 dotnet clean SharpSerial -c Release
 dotnet pack SharpSerial -c Release

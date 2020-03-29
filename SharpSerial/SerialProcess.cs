@@ -2,11 +2,21 @@
 using System.IO;
 using System.Text;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace SharpSerial
 {
     public class SerialProcess : ISerialInterface, IDisposable
     {
+        public static string PortName(int n)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return string.Format("COM{0}", n);
+            }
+            return string.Format("/dev/ttyS{0}", n);
+        }
+
         private readonly Process process;
 
         public SerialProcess(string portName, SerialSettings ss = null)
@@ -25,7 +35,7 @@ namespace SharpSerial
             process.StartInfo = new ProcessStartInfo()
             {
                 //.NET Core 3.1 reports dll but generates both dll and exe
-                FileName = Path.ChangeExtension(typeof(SerialProcess).Assembly.Location, "exe"),
+                FileName = FixExtension(typeof(SerialProcess).Assembly.Location),
                 Arguments = args.ToString(),
                 CreateNoWindow = true,
                 UseShellExecute = false,
@@ -33,8 +43,8 @@ namespace SharpSerial
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
             };
-            //Console.WriteLine(process.StartInfo.FileName);
-            //Console.WriteLine(process.StartInfo.Arguments);
+            Console.WriteLine(process.StartInfo.FileName);
+            Console.WriteLine(process.StartInfo.Arguments);
             process.Start();
             //Console.WriteLine("Pid={0}", process.Id);
         }
@@ -72,6 +82,17 @@ namespace SharpSerial
                 bytes[i] = Convert.ToByte(b2, 16);
             }
             return bytes;
+        }
+
+        private string FixExtension(string path)
+        {
+            var index = path.LastIndexOf(".");
+            if (index >= 0) path = path.Substring(0, index);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return path + ".exe";
+            }
+            return path;
         }
     }
 }

@@ -11,10 +11,11 @@
     <Authors>Samuel Ventura</Authors>
     <Description>C# Process Isolated Serial</Description>
     <License>https://www.apache.org/licenses/LICENSE-2.0</License>  
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>    
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
-    <PackageReference Include="System.IO.Ports" Version="4.4.0" />
+    <PackageReference Include="System.IO.Ports" Version="4.7.0" />
   </ItemGroup>
 
 </Project>
