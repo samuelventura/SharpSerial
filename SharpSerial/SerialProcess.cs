@@ -16,8 +16,7 @@ namespace SharpSerial
             {
                 foreach (var p in ss.GetType().GetProperties())
                 {
-                    args.AppendFormat(" ");
-                    args.AppendFormat("{0}={1}", p.Name, p.GetValue(ss, null).ToString());
+                    args.AppendFormat(" {0}={1}", p.Name, p.GetValue(ss, null).ToString());
                 }
             }
             process = new Process();
@@ -29,7 +28,7 @@ namespace SharpSerial
                 UseShellExecute = false,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
-                RedirectStandardError = true,
+                RedirectStandardError = false,
             };
             process.Start();
         }
@@ -50,7 +49,13 @@ namespace SharpSerial
         public byte[] Read(int size, int eop, int toms)
         {
             process.StandardInput.WriteLine("$r,{0},{1},{2}", size, (int)eop, toms);
-            return ParseHex(process.StandardOutput.ReadLine());
+            var line = process.StandardOutput.ReadLine();
+            if (line.StartsWith("!"))
+            {
+                var trace = process.StandardOutput.ReadToEnd();
+                throw new SerialException(line.Substring(1), trace);
+            }
+            return ParseHex(line);
         }
 
         private void WriteHex(byte[] data)

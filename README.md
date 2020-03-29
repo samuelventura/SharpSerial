@@ -31,6 +31,8 @@ dotnet publish SharpSerial -c Release --framework net40
 
 ## TODO
 
-- [ ] Support Linux / macOS once proper dev environment
-- [ ] Support .NET Core targets once exe is packed
 - [ ] Improve documentation and samples
+- [ ] Support Linux/macOS once proper dev environment
+- [ ] Support .NET Core targets once exe is packed
+- [ ] Research issue: on fast close/open com0com wont clear inbuf
+- [ ] Research issue: on fast close/open ftdi wont release port

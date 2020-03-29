@@ -32,7 +32,6 @@ namespace SharpSerial
 
         public void SetProperty(string line)
         {
-            if (serial.IsOpen) throw Tools.Make("Port already open for {0}", Tools.Relative(line));
             var parts = line.Split(new char[] { '=' }, 2);
             var propertyName = parts[0];
             var propertyValue = parts[1];
@@ -95,6 +94,7 @@ namespace SharpSerial
         {
             Tools.Try(() =>
             {
+                //now ways to avoid try without risk of dumping no errors
                 int count = serial.BaseStream.EndRead(ar);
                 lock (queue) for (var i = 0; i < count; i++) queue.Enqueue(buffer[i]);
                 serial.BaseStream.BeginRead(buffer, 0, buffer.Length, ReadCallback, null);

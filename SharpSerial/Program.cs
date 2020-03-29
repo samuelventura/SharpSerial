@@ -5,13 +5,10 @@ namespace SharpSerial
 {
     partial class Program
     {
-        static Logger logger = new Logger();
-
         static void ExceptionHandler(object sender, UnhandledExceptionEventArgs args)
         {
             var ex = (Exception)args.ExceptionObject;
-            Tools.Try(() => Tools.Dump(ex));
-            Tools.Try(() => logger.Exception(ex));
+            Tools.Try(() => Console.WriteLine("!{0}", ex.ToString()));
             Environment.Exit(1);
         }
 
@@ -21,15 +18,10 @@ namespace SharpSerial
 
             using (var wrapper = new SerialWrapper())
             {
-                foreach (var arg in args)
-                {
-                    logger.Debug(arg);
-                    wrapper.SetProperty(arg);
-                }
+                foreach (var arg in args) wrapper.SetProperty(arg);
                 var line = Console.ReadLine();
                 while (line != null)
                 {
-                    logger.Debug(line);
                     if (string.IsNullOrWhiteSpace(line)) break;
                     else if (line.StartsWith("$"))
                     {
@@ -78,7 +70,6 @@ namespace SharpSerial
             sb.Append("<");
             foreach (var b in data) sb.Append(b.ToString("X2"));
             var txt = sb.ToString();
-            logger.Debug(txt);
             Console.WriteLine(txt);
         }
 
