@@ -4,7 +4,7 @@ Process Isolated Serial Port
 
 ## Documentation
 
-No documentation yet. Resort to tests at SharpSerialTest subprojects for guidance.
+No documentation yet. Resort to tests at SharpSerial.Test subprojects for guidance.
 
 ## Development Setup
 
