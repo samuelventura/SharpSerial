@@ -8,17 +8,16 @@ No documentation yet. Resort to tests at SharpSerial.Test subproject for guidanc
 
 ## Development Setup
 
-- Windows 10 Pro 64x / macOS 10.13.2
+- Windows 10 Pro 64x (Windows only)
 - VS Code (bash terminal from Git4Win)
 - Net Core SDK 3.1.201
-- dotnet CLI
+- com0com-2.2.2.0-x64-fre-signed COM98/99
+- Startech ICUSB2322F COM10/11
 
 ## Development CLI
 
 ```bash
-#WSL grant access to /dev/ttyS*
-
-#packing for nuget
+#nuget packing and publishing
 dotnet clean SharpSerial -c Release
 dotnet pack SharpSerial -c Release
 #cross platform test cases
@@ -26,6 +25,12 @@ dotnet test SharpSerial.Test
 #console output for test cases
 dotnet test SharpSerial.Test -v n
 #run with specific framework
-dotnet run --project SharpSerial --framework netcoreapp3.1
 dotnet run --project SharpSerial --framework net40
+dotnet publish SharpSerial -c Release --framework net40
 ```
+
+## TODO
+
+- [ ] Support Linux / macOS once proper dev environment
+- [ ] Support .NET Core targets once exe is packed
+- [ ] Improve documentation and samples

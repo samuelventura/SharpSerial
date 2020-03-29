@@ -1,22 +1,11 @@
 ﻿using System;
-using System.IO;
 using System.Text;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace SharpSerial
 {
     public class SerialProcess : ISerialInterface, IDisposable
     {
-        public static string PortName(int n)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return string.Format("COM{0}", n);
-            }
-            return string.Format("/dev/ttyS{0}", n);
-        }
-
         private readonly Process process;
 
         public SerialProcess(string portName, SerialSettings ss = null)
@@ -34,8 +23,7 @@ namespace SharpSerial
             process = new Process();
             process.StartInfo = new ProcessStartInfo()
             {
-                //.NET Core 3.1 reports dll but generates both dll and exe
-                FileName = FixExtension(typeof(SerialProcess).Assembly.Location),
+                FileName = typeof(SerialProcess).Assembly.Location,
                 Arguments = args.ToString(),
                 CreateNoWindow = true,
                 UseShellExecute = false,
@@ -43,16 +31,18 @@ namespace SharpSerial
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
             };
-            Console.WriteLine(process.StartInfo.FileName);
-            Console.WriteLine(process.StartInfo.Arguments);
             process.Start();
-            //Console.WriteLine("Pid={0}", process.Id);
         }
 
         public void Dispose()
         {
-            Program.Try(process.Kill);
-            Program.Try(process.Dispose);
+            Tools.Try(() =>
+            {
+                process.StandardInput.WriteLine();
+                process.WaitForExit(200);
+            });
+            Tools.Try(process.Kill);
+            Tools.Try(process.Dispose);
         }
 
         public void Write(byte[] data) => WriteHex(data);
@@ -73,8 +63,8 @@ namespace SharpSerial
 
         private byte[] ParseHex(string text)
         {
-            Program.Assert(text.StartsWith("<"), "First char < expected for {0}:{1}", text.Length, text);
-            Program.Assert(text.Length % 2 == 1, "Odd length expected for {0}:{1}", text.Length, text);
+            Tools.Assert(text.StartsWith("<"), "First char < expected for {0}:{1}", text.Length, text);
+            Tools.Assert(text.Length % 2 == 1, "Odd length expected for {0}:{1}", text.Length, text);
             var bytes = new byte[text.Length / 2];
             for (int i = 0; i < bytes.Length; i++)
             {
@@ -82,17 +72,6 @@ namespace SharpSerial
                 bytes[i] = Convert.ToByte(b2, 16);
             }
             return bytes;
-        }
-
-        private string FixExtension(string path)
-        {
-            var index = path.LastIndexOf(".");
-            if (index >= 0) path = path.Substring(0, index);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return path + ".exe";
-            }
-            return path;
         }
     }
 }

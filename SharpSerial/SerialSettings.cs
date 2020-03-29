@@ -2,6 +2,7 @@
 using System.IO.Ports;
 using System.Globalization;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 
 namespace SharpSerial
 {
@@ -19,7 +20,7 @@ namespace SharpSerial
 
         public void CopyTo(SerialSettings ss) => CopyProperties(ss, this);
 
-        [TypeConverter(typeof(BaudRateOptions))]
+        [TypeConverter(typeof(BaudRateConverter))]
         public int BaudRate { get; set; }
 
         public int DataBits { get; set; }
@@ -30,18 +31,6 @@ namespace SharpSerial
 
         public StopBits StopBits { get; set; }
 
-        public bool DiscardNull { get; set; }
-
-        public bool DtrEnable { get; set; }
-
-        public int ReadTimeout { get; set; }
-
-        public int ReadBufferSize { get; set; }
-
-        public int WriteTimeout { get; set; }
-
-        public int WriteBufferSize { get; set; }
-
         static void CopyProperties(Object source, Object target)
         {
             CopyProperty(source, target, "BaudRate");
@@ -49,12 +38,6 @@ namespace SharpSerial
             CopyProperty(source, target, "Parity");
             CopyProperty(source, target, "Handshake");
             CopyProperty(source, target, "StopBits");
-            CopyProperty(source, target, "DiscardNull");
-            CopyProperty(source, target, "DtrEnable");
-            CopyProperty(source, target, "ReadTimeout");
-            CopyProperty(source, target, "ReadBufferSize");
-            CopyProperty(source, target, "WriteTimeout");
-            CopyProperty(source, target, "WriteBufferSize");
         }
 
         static void CopyProperty(Object source, Object target, string name)
@@ -65,7 +48,45 @@ namespace SharpSerial
         }
     }
 
-    public class BaudRateOptions : TypeConverter
+    public class PortNameConverter : TypeConverter
+    {
+        private readonly Regex re = new Regex(@"[^a-zA-Z0-9_]");
+
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+        {
+            return true;
+        }
+
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            return new StandardValuesCollection(SerialPort.GetPortNames());
+        }
+
+        public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
+        {
+            return false;
+        }
+
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        {
+            return (sourceType == typeof(string));
+        }
+
+        public override object ConvertFrom(ITypeDescriptorContext context,
+            CultureInfo culture, object value)
+        {
+            if (re.IsMatch(value.ToString())) throw Tools.Make("Invalid chars");
+            return value;
+        }
+
+        public override object ConvertTo(ITypeDescriptorContext context,
+            CultureInfo culture, object value, Type destinationType)
+        {
+            return value;
+        }
+    }
+
+    public class BaudRateConverter : TypeConverter
     {
         public readonly static int[] BaudRates = new int[] {
             110,

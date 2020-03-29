@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace SharpSerial
 {
-    partial class Program
+    static class Tools
     {
         public static void Try(Action action, Action<Exception> handler = null)
         {
@@ -41,7 +41,7 @@ namespace SharpSerial
             var folder = Relative("Exceptions");
             Directory.CreateDirectory(folder);
             var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
-            var filename = string.Format("Exception-{0}-SharpSerial-{1}.txt", timestamp, Process.GetCurrentProcess().Id);
+            var filename = string.Format("Exception-{0}-SharpSerial-{1:000000}.txt", timestamp, Process.GetCurrentProcess().Id);
             var path = Path.Combine(folder, filename);
             File.WriteAllText(path, ex.ToString());
         }

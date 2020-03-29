@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net40;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net40</TargetFrameworks>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <PackageId>SharpSerial</PackageId>
     <PackageVersion>1.0.1.0</PackageVersion>
@@ -13,9 +13,5 @@
     <License>https://www.apache.org/licenses/LICENSE-2.0</License>  
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>    
   </PropertyGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
-    <PackageReference Include="System.IO.Ports" Version="4.7.0" />
-  </ItemGroup>
 
 </Project>
