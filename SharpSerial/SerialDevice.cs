@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Collections.Generic;
 using System.IO.Ports;
@@ -9,20 +10,24 @@ namespace SharpSerial
     // Solution based on BaseStream and influenced by
     // https://www.sparxeng.com/blog/software/must-use-net-system-io-ports-serialport
     // https://www.vgies.com/a-reliable-serial-port-in-c/
-    class SerialWrapper : ISerialInterface, IDisposable
+    public class SerialDevice : ISerialStream, IDisposable
     {
+        private readonly Action<Exception> handler;
         private readonly SerialPort serial;
         private readonly List<byte> list;
         private readonly Queue<byte> queue;
         private readonly byte[] buffer;
 
-        public SerialWrapper()
+        public SerialDevice(Action<Exception> handler = null)
         {
-            list = new List<byte>(256);
-            queue = new Queue<byte>(256);
-            buffer = new byte[256];
-            serial = new SerialPort();
+            this.handler = handler;
+            this.list = new List<byte>(256);
+            this.queue = new Queue<byte>(256);
+            this.buffer = new byte[256];
+            this.serial = new SerialPort();
         }
+
+        public SerialPort Serial { get { return serial; } }
 
         public void Dispose()
         {
@@ -30,22 +35,13 @@ namespace SharpSerial
             Tools.Try(serial.Dispose);
         }
 
-        public void SetProperty(string line)
-        {
-            var parts = line.Split(new char[] { '=' }, 2);
-            var propertyName = parts[0];
-            var propertyValue = parts[1];
-            var property = serial.GetType().GetProperty(propertyName);
-            var value = Convert.ChangeType(propertyValue, property.PropertyType);
-            property.SetValue(serial, value, null);
-        }
-
         public void Write(byte[] data)
         {
             InitAndOpenPort();
-            serial.BaseStream.Write(data, 0, data.Length);
+            var stream = serial.BaseStream;
+            stream.Write(data, 0, data.Length);
             //always flush to allow sync by following read available
-            serial.BaseStream.Flush();
+            stream.Flush();
         }
 
         public byte[] Read(int size, int eop, int toms)
@@ -86,15 +82,26 @@ namespace SharpSerial
             {
                 serial.Open();
                 //DiscardInBuffer not needed by FTDI and ignored by com0com
-                serial.BaseStream.BeginRead(buffer, 0, buffer.Length, ReadCallback, null);
+                var stream = serial.BaseStream;
+                //unavailable after closed so pass it
+                stream.BeginRead(buffer, 0, buffer.Length, ReadCallback, stream);
             }
         }
 
         private void ReadCallback(IAsyncResult ar)
         {
-            int count = serial.BaseStream.EndRead(ar);
-            lock (queue) for (var i = 0; i < count; i++) queue.Enqueue(buffer[i]);
-            serial.BaseStream.BeginRead(buffer, 0, buffer.Length, ReadCallback, null);
+            Tools.Try(() =>
+            {
+                //try needed to avoid triggering the domain unhandled 
+                //exception handler when used as standalone stream
+                var stream = ar.AsyncState as Stream;
+                int count = stream.EndRead(ar);
+                if (count > 0) //0 for closed stream
+                {
+                    lock (queue) for (var i = 0; i < count; i++) queue.Enqueue(buffer[i]);
+                    stream.BeginRead(buffer, 0, buffer.Length, ReadCallback, stream);
+                }
+            }, handler);
         }
     }
 }

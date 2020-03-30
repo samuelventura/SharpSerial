@@ -2,7 +2,7 @@
 
 namespace SharpSerial
 {
-    public interface ISerialInterface
+    public interface ISerialStream
     {
         void Write(byte[] data);
         byte[] Read(int size, int eop, int toms);

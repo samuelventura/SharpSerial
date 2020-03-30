@@ -8,6 +8,48 @@ namespace SharpSerial
 {
     static class Tools
     {
+        public static void ExceptionHandler(object sender, UnhandledExceptionEventArgs args)
+        {
+            ExceptionHandler(args.ExceptionObject as Exception);
+        }
+
+        public static void ExceptionHandler(Exception ex)
+        {
+            Tools.Try(() => Console.WriteLine("!{0}", ex.ToString()));
+            Environment.Exit(1);
+        }
+
+        public static void AnswerHex(byte[] data)
+        {
+            var sb = new StringBuilder();
+            sb.Append("<");
+            foreach (var b in data) sb.Append(b.ToString("X2"));
+            var txt = sb.ToString();
+            Console.WriteLine(txt);
+        }
+
+        public static byte[] ParseHex(string text)
+        {
+            Tools.Assert(text.Length % 2 == 1, "Odd length expected for {0}:{1}", text.Length, text);
+            var bytes = new byte[text.Length / 2];
+            for (var i = 0; i < bytes.Length; i++)
+            {
+                var b2 = text.Substring(1 + i * 2, 2);
+                bytes[i] = Convert.ToByte(b2, 16);
+            }
+            return bytes;
+        }
+
+        public static void SetProperty(object target, string line)
+        {
+            var parts = line.Split(new char[] { '=' }, 2);
+            var propertyName = parts[0];
+            var propertyValue = parts[1];
+            var property = target.GetType().GetProperty(propertyName);
+            var value = Convert.ChangeType(propertyValue, property.PropertyType);
+            property.SetValue(target, value, null);
+        }
+
         public static void Try(Action action, Action<Exception> handler = null)
         {
             try

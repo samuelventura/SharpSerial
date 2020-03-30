@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace SharpSerial
 {
-    public class SerialProcess : ISerialInterface, IDisposable
+    public class SerialProcess : ISerialStream, IDisposable
     {
         private readonly Process process;
 
@@ -50,6 +50,7 @@ namespace SharpSerial
         {
             process.StandardInput.WriteLine("$r,{0},{1},{2}", size, (int)eop, toms);
             var line = process.StandardOutput.ReadLine();
+            if (line == null) throw Tools.Make("Serial process EOF");
             if (line.StartsWith("!"))
             {
                 var trace = process.StandardOutput.ReadToEnd();

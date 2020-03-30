@@ -9,7 +9,7 @@
     <PackageProjectUrl>https://github.com/samuelventura/SharpSerial</PackageProjectUrl>  
     <PackageTags>Serial Isolation</PackageTags>  
     <Authors>Samuel Ventura</Authors>
-    <Description>C# Process Isolated Serial</Description>
+    <Description>C# Process Isolated Serial Port</Description>
     <License>https://www.apache.org/licenses/LICENSE-2.0</License>  
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>    
   </PropertyGroup>

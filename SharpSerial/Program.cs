@@ -1,31 +1,23 @@
 ﻿using System;
-using System.Text;
 
 namespace SharpSerial
 {
     partial class Program
     {
-        static void ExceptionHandler(object sender, UnhandledExceptionEventArgs args)
-        {
-            var ex = (Exception)args.ExceptionObject;
-            Tools.Try(() => Console.WriteLine("!{0}", ex.ToString()));
-            Environment.Exit(1);
-        }
-
         static void Main(string[] args)
         {
-            AppDomain.CurrentDomain.UnhandledException += ExceptionHandler;
+            AppDomain.CurrentDomain.UnhandledException += Tools.ExceptionHandler;
 
-            using (var wrapper = new SerialWrapper())
+            using (var wrapper = new SerialDevice(Tools.ExceptionHandler))
             {
-                foreach (var arg in args) wrapper.SetProperty(arg);
+                foreach (var arg in args) Tools.SetProperty(wrapper.Serial, arg);
                 var line = Console.ReadLine();
                 while (line != null)
                 {
                     if (string.IsNullOrWhiteSpace(line)) break;
                     else if (line.StartsWith("$"))
                     {
-                        if (line.Contains("=")) wrapper.SetProperty(line.Substring(1));
+                        if (line.Contains("=")) Tools.SetProperty(wrapper.Serial, line.Substring(1));
                         else
                         {
                             var parts = line.Split(new char[] { ',' });
@@ -37,7 +29,7 @@ namespace SharpSerial
                                     var rEop = ParseInt(line, parts[2], 2);
                                     var rToms = ParseInt(line, parts[3], 3);
                                     var rData = wrapper.Read(rSize, rEop, rToms);
-                                    AnswerHex(rData);
+                                    Tools.AnswerHex(rData);
                                     break;
                                 default:
                                     throw Tools.Make("Unknown command {0}", Tools.Readable(line));
@@ -46,7 +38,7 @@ namespace SharpSerial
                     }
                     else if (line.StartsWith(">"))
                     {
-                        wrapper.Write(ParseHex(line));
+                        wrapper.Write(Tools.ParseHex(line));
                     }
                     else
                     {
@@ -62,27 +54,6 @@ namespace SharpSerial
         {
             if (int.TryParse(part, out var value)) return value;
             throw Tools.Make("Invalid int at param {0} of {1}", index, Tools.Readable(line));
-        }
-
-        static void AnswerHex(byte[] data)
-        {
-            var sb = new StringBuilder();
-            sb.Append("<");
-            foreach (var b in data) sb.Append(b.ToString("X2"));
-            var txt = sb.ToString();
-            Console.WriteLine(txt);
-        }
-
-        static byte[] ParseHex(string text)
-        {
-            Tools.Assert(text.Length % 2 == 1, "Odd length expected for {0}:{1}", text.Length, text);
-            var bytes = new byte[text.Length / 2];
-            for (int i = 0; i < bytes.Length; i++)
-            {
-                var b2 = text.Substring(1 + i * 2, 2);
-                bytes[i] = Convert.ToByte(b2, 16);
-            }
-            return bytes;
         }
     }
 }
