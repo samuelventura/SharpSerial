@@ -12,10 +12,9 @@ namespace SharpSerial
             {
                 foreach (var arg in args) Tools.SetProperty(wrapper.Serial, arg);
                 var line = Stdio.ReadLine();
-                while (line != null)
+                while (!string.IsNullOrWhiteSpace(line))
                 {
-                    if (string.IsNullOrWhiteSpace(line)) break;
-                    else if (line.StartsWith("$"))
+                    if (line.StartsWith("$"))
                     {
                         if (line.Contains("=")) Tools.SetProperty(wrapper.Serial, line.Substring(1));
                         else
@@ -24,7 +23,7 @@ namespace SharpSerial
                             switch (parts[0])
                             {
                                 case "$r":
-                                    if (parts.Length < 4) throw Tools.Make("Expected 4 parts for {0}", Tools.Readable(line));
+                                    if (parts.Length != 4) throw Tools.Make("Expected 4 parts in {0}", Tools.Readable(line));
                                     var rSize = ParseInt(line, parts[1], 1);
                                     var rEop = ParseInt(line, parts[2], 2);
                                     var rToms = ParseInt(line, parts[3], 3);

@@ -58,10 +58,12 @@ namespace SharpSerial
 
         public static void SetProperty(object target, string line)
         {
-            var parts = line.Split(new char[] { '=' }, 2);
+            var parts = line.Split(new char[] { '=' });
+            if (parts.Length != 2) throw Tools.Make("Expected 2 parts in {0}", Tools.Readable(line));
             var propertyName = parts[0];
             var propertyValue = parts[1];
             var property = target.GetType().GetProperty(propertyName);
+            if (property == null) throw Make("Property not found {0}", Readable(propertyName));
             var value = Convert.ChangeType(propertyValue, property.PropertyType);
             property.SetValue(target, value, null);
         }
