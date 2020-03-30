@@ -38,6 +38,7 @@ namespace SharpSerial
             Tools.Try(() =>
             {
                 process.StandardInput.WriteLine();
+                process.StandardInput.Flush();
                 process.WaitForExit(200);
             });
             Tools.Try(process.Kill);
