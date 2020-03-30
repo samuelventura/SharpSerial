@@ -1,8 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Text;
-using System.Reflection;
-using System.Diagnostics;
 
 namespace SharpSerial
 {
@@ -88,22 +85,6 @@ namespace SharpSerial
             var line = format;
             if (args.Length > 0) line = string.Format(format, args);
             return new Exception(line);
-        }
-
-        public static string Relative(string folder)
-        {
-            var root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            return Path.Combine(root, folder);
-        }
-
-        public static void Dump(Exception ex)
-        {
-            var folder = Relative("Exceptions");
-            Directory.CreateDirectory(folder);
-            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
-            var filename = string.Format("Exception-{0}-SharpSerial-{1:000000}.txt", timestamp, Process.GetCurrentProcess().Id);
-            var path = Path.Combine(folder, filename);
-            File.WriteAllText(path, ex.ToString());
         }
 
         public static string Readable(string text)
