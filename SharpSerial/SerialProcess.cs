@@ -49,7 +49,12 @@ namespace SharpSerial
 
         public byte[] Read(int size, int eop, int toms)
         {
-            process.StandardInput.WriteLine("$r,{0},{1},{2}", size, (int)eop, toms);
+            WriteLine("$r,{0},{1},{2}", size, (int)eop, toms);
+            return ParseHex(ReadLine());
+        }
+
+        private string ReadLine()
+        {
             var line = process.StandardOutput.ReadLine();
             if (line == null) throw Tools.Make("Serial process EOF");
             if (line.StartsWith("!"))
@@ -57,7 +62,13 @@ namespace SharpSerial
                 var trace = process.StandardOutput.ReadToEnd();
                 throw new SerialException(line.Substring(1), trace);
             }
-            return ParseHex(line);
+            return line;
+        }
+
+        private void WriteLine(string format, params object[] args)
+        {
+            process.StandardInput.WriteLine(format, args);
+            process.StandardInput.Flush();
         }
 
         private void WriteHex(byte[] data)
@@ -65,7 +76,7 @@ namespace SharpSerial
             var sb = new StringBuilder();
             sb.Append(">");
             foreach (var b in data) sb.Append(b.ToString("X2"));
-            process.StandardInput.WriteLine(sb.ToString());
+            WriteLine(sb.ToString());
         }
 
         private byte[] ParseHex(string text)
