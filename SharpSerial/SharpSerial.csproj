@@ -5,7 +5,7 @@
     <TargetFrameworks>net40</TargetFrameworks>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <PackageId>SharpSerial</PackageId>
-    <PackageVersion>1.0.1.0</PackageVersion>
+    <PackageVersion>1.0.2.0</PackageVersion>
     <PackageProjectUrl>https://github.com/samuelventura/SharpSerial</PackageProjectUrl>  
     <PackageTags>Serial Isolation</PackageTags>  
     <Authors>Samuel Ventura</Authors>
