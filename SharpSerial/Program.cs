@@ -11,7 +11,7 @@ namespace SharpSerial
             using (var wrapper = new SerialDevice(Tools.ExceptionHandler))
             {
                 foreach (var arg in args) Tools.SetProperty(wrapper.Serial, arg);
-                var line = Console.ReadLine();
+                var line = Stdio.ReadLine();
                 while (line != null)
                 {
                     if (string.IsNullOrWhiteSpace(line)) break;
@@ -44,7 +44,7 @@ namespace SharpSerial
                     {
                         throw Tools.Make("Unknown command {0}", Tools.Readable(line));
                     }
-                    line = Console.ReadLine();
+                    line = Stdio.ReadLine();
                 }
             }
             Environment.Exit(0);

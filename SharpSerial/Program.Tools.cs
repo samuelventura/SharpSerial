@@ -6,6 +6,22 @@ using System.Diagnostics;
 
 namespace SharpSerial
 {
+    static class Stdio
+    {
+        private static readonly object locker = new object();
+
+        public static void WriteLine(string format, params object[] args)
+        {
+            lock (locker)
+            {
+                Console.WriteLine(format, args);
+                Console.Out.Flush();
+            }
+        }
+
+        public static string ReadLine() => Console.ReadLine();
+    }
+
     static class Tools
     {
         public static void ExceptionHandler(object sender, UnhandledExceptionEventArgs args)
@@ -15,7 +31,7 @@ namespace SharpSerial
 
         public static void ExceptionHandler(Exception ex)
         {
-            Tools.Try(() => Console.WriteLine("!{0}", ex.ToString()));
+            Tools.Try(() => Stdio.WriteLine("!{0}", ex.ToString()));
             Environment.Exit(1);
         }
 
@@ -25,7 +41,7 @@ namespace SharpSerial
             sb.Append("<");
             foreach (var b in data) sb.Append(b.ToString("X2"));
             var txt = sb.ToString();
-            Console.WriteLine(txt);
+            Stdio.WriteLine(txt);
         }
 
         public static byte[] ParseHex(string text)
