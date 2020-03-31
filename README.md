@@ -20,13 +20,13 @@ No documentation yet. Resort to tests at SharpSerial.Test subproject for guidanc
 #nuget packing and publishing
 dotnet clean SharpSerial -c Release
 dotnet pack SharpSerial -c Release
+dotnet publish SharpSerial -c Release
 #cross platform test cases
 dotnet test SharpSerial.Test
 #console output for test cases
 dotnet test SharpSerial.Test -v n
-#run with specific framework
-dotnet run --project SharpSerial --framework net40
-dotnet publish SharpSerial -c Release --framework net40
+#run (close with enter)
+dotnet run -p SharpSerial
 ```
 
 ## TODO
