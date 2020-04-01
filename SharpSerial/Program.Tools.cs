@@ -28,7 +28,7 @@ namespace SharpSerial
 
         public static void ExceptionHandler(Exception ex)
         {
-            Tools.Try(() => Stdio.WriteLine("!{0}", ex.ToString()));
+            Try(() => Stdio.WriteLine("!{0}", ex.ToString()));
             Environment.Exit(1);
         }
 
@@ -43,7 +43,7 @@ namespace SharpSerial
 
         public static byte[] ParseHex(string text)
         {
-            Tools.Assert(text.Length % 2 == 1, "Odd length expected for {0}:{1}", text.Length, text);
+            Assert(text.Length % 2 == 1, "Odd length expected for {0}:{1}", text.Length, text);
             var bytes = new byte[text.Length / 2];
             for (var i = 0; i < bytes.Length; i++)
             {
@@ -56,7 +56,7 @@ namespace SharpSerial
         public static void SetProperty(object target, string line)
         {
             var parts = line.Split(new char[] { '=' });
-            if (parts.Length != 2) throw Tools.Make("Expected 2 parts in {0}", Tools.Readable(line));
+            if (parts.Length != 2) throw Make("Expected 2 parts in {0}", Readable(line));
             var propertyName = parts[0];
             var propertyValue = parts[1];
             var property = target.GetType().GetProperty(propertyName);
