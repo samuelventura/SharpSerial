@@ -3,7 +3,7 @@ using System.Text;
 
 namespace SharpSerial
 {
-    static class Stdio
+    public static class Stdio
     {
         private static readonly object locker = new object();
 
@@ -19,7 +19,7 @@ namespace SharpSerial
         public static string ReadLine() => Console.ReadLine();
     }
 
-    static class Tools
+    public static class Tools
     {
         public static void ExceptionHandler(object sender, UnhandledExceptionEventArgs args)
         {
@@ -61,8 +61,14 @@ namespace SharpSerial
             var propertyValue = parts[1];
             var property = target.GetType().GetProperty(propertyName);
             if (property == null) throw Make("Property not found {0}", Readable(propertyName));
-            var value = Convert.ChangeType(propertyValue, property.PropertyType);
+            var value = FromString(property.PropertyType, propertyValue);
             property.SetValue(target, value, null);
+        }
+
+        public static object FromString(Type type, string text)
+        {
+            if (type.IsEnum) return Enum.Parse(type, text);
+            return Convert.ChangeType(text, type);
         }
 
         public static void Try(Action action, Action<Exception> handler = null)

@@ -8,16 +8,14 @@ namespace SharpSerial
     {
         private readonly Process process;
 
-        public SerialProcess(string portName, SerialSettings ss = null)
+        public SerialProcess(object settings)
         {
+            var ss = new SerialSettings(settings);
             var args = new StringBuilder();
-            args.AppendFormat("PortName={0}", portName);
-            if (ss != null)
+            foreach (var p in ss.GetType().GetProperties())
             {
-                foreach (var p in ss.GetType().GetProperties())
-                {
-                    args.AppendFormat(" {0}={1}", p.Name, p.GetValue(ss, null).ToString());
-                }
+                if (args.Length > 0) args.Append(" ");
+                args.AppendFormat("{0}={1}", p.Name, p.GetValue(ss, null).ToString());
             }
             process = new Process();
             process.StartInfo = new ProcessStartInfo()

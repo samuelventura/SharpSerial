@@ -8,36 +8,33 @@ namespace SharpSerial
         {
             AppDomain.CurrentDomain.UnhandledException += Tools.ExceptionHandler;
 
-            using (var wrapper = new SerialDevice(Tools.ExceptionHandler))
+            var settings = new SerialSettings();
+            foreach (var arg in args) Tools.SetProperty(settings, arg);
+            using (var serial = new SerialDevice(settings))
             {
-                foreach (var arg in args) Tools.SetProperty(wrapper.Serial, arg);
                 var line = Stdio.ReadLine();
                 while (!string.IsNullOrWhiteSpace(line))
                 {
                     if (line.StartsWith("$"))
                     {
-                        if (line.Contains("=")) Tools.SetProperty(wrapper.Serial, line.Substring(1));
-                        else
+                        var parts = line.Split(new char[] { ',' });
+                        switch (parts[0])
                         {
-                            var parts = line.Split(new char[] { ',' });
-                            switch (parts[0])
-                            {
-                                case "$r":
-                                    if (parts.Length != 4) throw Tools.Make("Expected 4 parts in {0}", Tools.Readable(line));
-                                    var rSize = ParseInt(line, parts[1], 1);
-                                    var rEop = ParseInt(line, parts[2], 2);
-                                    var rToms = ParseInt(line, parts[3], 3);
-                                    var rData = wrapper.Read(rSize, rEop, rToms);
-                                    Tools.AnswerHex(rData);
-                                    break;
-                                default:
-                                    throw Tools.Make("Unknown command {0}", Tools.Readable(line));
-                            }
+                            case "$r":
+                                if (parts.Length != 4) throw Tools.Make("Expected 4 parts in {0}", Tools.Readable(line));
+                                var rSize = ParseInt(line, parts[1], 1);
+                                var rEop = ParseInt(line, parts[2], 2);
+                                var rToms = ParseInt(line, parts[3], 3);
+                                var rData = serial.Read(rSize, rEop, rToms);
+                                Tools.AnswerHex(rData);
+                                break;
+                            default:
+                                throw Tools.Make("Unknown command {0}", Tools.Readable(line));
                         }
                     }
                     else if (line.StartsWith(">"))
                     {
-                        wrapper.Write(Tools.ParseHex(line));
+                        serial.Write(Tools.ParseHex(line));
                     }
                     else
                     {

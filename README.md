@@ -25,6 +25,8 @@ dotnet publish SharpSerial -c Release
 dotnet test SharpSerial.Test
 #console output for test cases
 dotnet test SharpSerial.Test -v n
+#individual tests
+dotnet test SharpSerial.Test --filter FullyQualifiedName~CopyPropertyTest
 #run (close with enter)
 dotnet run -p SharpSerial
 ```

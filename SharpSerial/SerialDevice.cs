@@ -16,18 +16,16 @@ namespace SharpSerial
         private readonly SerialPort serial;
         private readonly List<byte> list;
         private readonly Queue<byte> queue;
-        private readonly byte[] buffer;
+        private byte[] buffer;
 
-        public SerialDevice(Action<Exception> handler = null)
+        public SerialDevice(object settings, Action<Exception> handler = null)
         {
             this.handler = handler;
             this.list = new List<byte>(256);
             this.queue = new Queue<byte>(256);
-            this.buffer = new byte[256];
             this.serial = new SerialPort();
+            SerialSettings.CopyProperties(settings, serial);
         }
-
-        public SerialPort Serial { get { return serial; } }
 
         public void Dispose()
         {
@@ -78,9 +76,11 @@ namespace SharpSerial
 
         private void InitAndOpenPort()
         {
-            if (!serial.IsOpen)
+            if (buffer == null) //init flag
             {
-                serial.Open();
+                Tools.Assert(!serial.IsOpen, "Port {0} already open", serial.PortName);
+                serial.Open(); //must not be already open
+                buffer = new byte[256];
                 //DiscardInBuffer not needed by FTDI and ignored by com0com
                 var stream = serial.BaseStream;
                 //unavailable after closed so pass it

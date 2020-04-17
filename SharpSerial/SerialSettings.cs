@@ -8,42 +8,36 @@ namespace SharpSerial
 {
     public class SerialSettings
     {
-        public SerialSettings() => CopyProperties(this, new SerialPort());
+        public SerialSettings() => CopyProperties(new SerialPort(), this);
+        public SerialSettings(string portName) => CopyProperties(new SerialPort(portName), this);
+        public SerialSettings(object source) => CopyProperties(source, this);
 
-        public SerialSettings(SerialPort sp) => CopyProperties(this, sp);
+        public void CopyFrom(object source) => CopyProperties(source, this);
+        public void CopyTo(object target) => CopyProperties(this, target);
 
-        public void CopyFrom(SerialPort sp) => CopyProperties(this, sp);
-
-        public void CopyTo(SerialPort sp) => CopyProperties(sp, this);
-
-        public void CopyFrom(SerialSettings ss) => CopyProperties(this, ss);
-
-        public void CopyTo(SerialSettings ss) => CopyProperties(ss, this);
-
+        [TypeConverter(typeof(PortNameConverter))]
+        public string PortName { get; set; }
         [TypeConverter(typeof(BaudRateConverter))]
         public int BaudRate { get; set; }
-
         public int DataBits { get; set; }
-
         public Parity Parity { get; set; }
-
+        public StopBits StopBits { get; set; }
         public Handshake Handshake { get; set; }
 
-        public StopBits StopBits { get; set; }
-
-        static void CopyProperties(Object source, Object target)
+        public static void CopyProperties(Object source, Object target)
         {
+            CopyProperty(source, target, "PortName");
             CopyProperty(source, target, "BaudRate");
             CopyProperty(source, target, "DataBits");
             CopyProperty(source, target, "Parity");
-            CopyProperty(source, target, "Handshake");
             CopyProperty(source, target, "StopBits");
+            CopyProperty(source, target, "Handshake");
         }
 
         static void CopyProperty(Object source, Object target, string name)
         {
-            var propertyTarget = target.GetType().GetProperty(name);
             var propertySource = source.GetType().GetProperty(name);
+            var propertyTarget = target.GetType().GetProperty(name);
             propertyTarget.SetValue(target, propertySource.GetValue(source, null), null);
         }
     }

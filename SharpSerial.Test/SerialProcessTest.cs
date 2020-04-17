@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.IO.Ports;
 using System.Threading;
 using NUnit.Framework;
 
@@ -14,7 +15,9 @@ namespace SharpSerial.Test
         {
             Assert.Throws<SerialException>(() =>
             {
-                using (var sp = new SerialProcess(p(9999)))
+                var ss = new SerialSettings();
+                ss.PortName = p(9999);
+                using (var sp = new SerialProcess(ss))
                 {
                     sp.Read(-1, -1, TOMS);
                 }
@@ -24,33 +27,53 @@ namespace SharpSerial.Test
         [Test]
         public void DiscardCom0ComTest()
         {
-            Discard(p(98), p(99));
+            foreach (var ss in SS()) Discard(p(98), p(99), ss);
         }
 
         [Test]
         public void DiscardFtdiTest()
         {
-            Discard(p(10), p(11));
+            foreach (var ss in SS()) Discard(p(10), p(11), ss);
         }
 
         [Test]
         public void BasicFtdiTest()
         {
-            Basic(p(10), p(11));
+            foreach (var ss in SS()) Basic(p(10), p(11), ss);
         }
 
         [Test]
         public void BasicCom0ComTest()
         {
-            Basic(p(98), p(99));
+            foreach (var ss in SS()) Basic(p(98), p(99), ss);
+        }
+
+        public SerialSettings[] SS()
+        {
+            return new SerialSettings[] {
+                new SerialSettings(),
+                new SerialSettings {
+                    BaudRate = 115200,
+                    DataBits = 7,
+                    Parity = Parity.Even,
+                    StopBits = StopBits.Two,
+                    Handshake = Handshake.XOnXOff,
+                },
+            };
         }
 
         //issue: on fast close/open com0com wont clear inbuf
         //issue: on fast close/open ftdi wont release port
-        public void Discard(string pn1, string pn2)
+        public void Discard(string pn1, string pn2, SerialSettings ss)
         {
-            using (var sp2 = new SerialProcess(pn2))
-            using (var sp1 = new SerialProcess(pn1))
+            //ftdi requires delay to ensure port is released
+            Thread.Sleep(TOMS);
+            var ss1 = new SerialSettings(ss);
+            var ss2 = new SerialSettings(ss);
+            ss1.PortName = pn1;
+            ss2.PortName = pn2;
+            using (var sp2 = new SerialProcess(ss2))
+            using (var sp1 = new SerialProcess(ss1))
             {
                 sp2.Read(-1, -1, TOMS); //discard
                 sp1.Write(b("Hello\n"));
@@ -59,17 +82,23 @@ namespace SharpSerial.Test
             }
             //ftdi requires delay to ensure port is released
             Thread.Sleep(TOMS);
-            using (var sp2 = new SerialProcess(pn2))
+            using (var sp2 = new SerialProcess(ss2))
             {
                 //locks like delay above clears the com0com inbuf 
                 Assert.AreEqual("", s(sp2.Read(-1, -1, TOMS)));
             }
         }
 
-        public void Basic(string pn1, string pn2)
+        public void Basic(string pn1, string pn2, SerialSettings ss)
         {
-            using (var sp1 = new SerialProcess(pn1))
-            using (var sp2 = new SerialProcess(pn2))
+            //ftdi requires delay to ensure port is released
+            Thread.Sleep(TOMS);
+            var ss1 = new SerialSettings(ss);
+            var ss2 = new SerialSettings(ss);
+            ss1.PortName = pn1;
+            ss2.PortName = pn2;
+            using (var sp1 = new SerialProcess(ss1))
+            using (var sp2 = new SerialProcess(ss2))
             {
                 sp2.Read(-1, -1, TOMS); //discard
                 sp1.Write(b("Hello\n"));
