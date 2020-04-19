@@ -1,12 +1,18 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace SharpSerial
 {
+    //this class should not swallow exceptions outside dispose
     public class SerialProcess : ISerialStream, IDisposable
     {
         private readonly Process process;
+        private readonly int pid;
+
+        public int Pid { get { return pid; } }
 
         public SerialProcess(object settings)
         {
@@ -28,33 +34,40 @@ namespace SharpSerial
                 RedirectStandardOutput = true,
                 RedirectStandardError = false,
             };
+            EnableStandardError(process.StartInfo);
             process.Start();
+            pid = process.Id;
+            ForwardStandardError(process.StandardError);
         }
 
         public void Dispose()
         {
             Tools.Try(() =>
             {
-                process.StandardInput.WriteLine();
-                process.StandardInput.Flush();
+                process.StandardInput.Close();
                 process.WaitForExit(200);
             });
             Tools.Try(process.Kill);
             Tools.Try(process.Dispose);
         }
 
-        public void Write(byte[] data) => WriteHex(data);
+        public void Write(byte[] data)
+        {
+            WriteHex(data);
+            var line = ReadLine();
+            Tools.Assert(line == "<ok", "Unexpected write response {0}", line);
+        }
 
         public byte[] Read(int size, int eop, int toms)
         {
-            WriteLine("$r,{0},{1},{2}", size, (int)eop, toms);
+            WriteLine("$r,{0},{1},{2}", size, eop, toms);
             return ParseHex(ReadLine());
         }
 
         private string ReadLine()
         {
             var line = process.StandardOutput.ReadLine();
-            if (line == null) throw Tools.Make("Serial process EOF");
+            if (line == null) throw new EndOfStreamException("Serial process EOF");
             if (line.StartsWith("!"))
             {
                 var trace = process.StandardOutput.ReadToEnd();
@@ -88,6 +101,26 @@ namespace SharpSerial
                 bytes[i] = Convert.ToByte(b2, 16);
             }
             return bytes;
+        }
+
+        [Conditional("DEBUG")]
+        private void EnableStandardError(ProcessStartInfo psi)
+        {
+            psi.RedirectStandardError = true;
+        }
+
+        [Conditional("DEBUG")]
+        private void ForwardStandardError(StreamReader reader)
+        {
+            Task.Run(() =>
+            {
+                var line = reader.ReadLine();
+                while (line != null)
+                {
+                    Stdio.Trace(line);
+                    line = reader.ReadLine();
+                }
+            });
         }
     }
 }

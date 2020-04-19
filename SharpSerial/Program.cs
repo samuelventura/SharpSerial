@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace SharpSerial
 {
@@ -8,13 +9,22 @@ namespace SharpSerial
         {
             AppDomain.CurrentDomain.UnhandledException += Tools.ExceptionHandler;
 
+            Stdio.EnableTrace(true, true);
+
             var settings = new SerialSettings();
-            foreach (var arg in args) Tools.SetProperty(settings, arg);
+            for (var i = 0; i < args.Length; i++)
+            {
+                var arg = args[i];
+                Stdio.Trace("#Arg {0} {1}", i, arg);
+                Tools.SetProperty(settings, arg);
+            }
+
             using (var serial = new SerialDevice(settings))
             {
                 var line = Stdio.ReadLine();
-                while (!string.IsNullOrWhiteSpace(line))
+                while (line != null)
                 {
+                    Stdio.Trace("{0}", line);
                     if (line.StartsWith("$"))
                     {
                         var parts = line.Split(new char[] { ',' });
@@ -26,7 +36,9 @@ namespace SharpSerial
                                 var rEop = ParseInt(line, parts[2], 2);
                                 var rToms = ParseInt(line, parts[3], 3);
                                 var rData = serial.Read(rSize, rEop, rToms);
-                                Tools.AnswerHex(rData);
+                                var response = Tools.StringHex(rData);
+                                Stdio.Trace(response);
+                                Stdio.WriteLine(response);
                                 break;
                             default:
                                 throw Tools.Make("Unknown command {0}", Tools.Readable(line));
@@ -35,6 +47,8 @@ namespace SharpSerial
                     else if (line.StartsWith(">"))
                     {
                         serial.Write(Tools.ParseHex(line));
+                        Stdio.Trace("<ok");
+                        Stdio.WriteLine("<ok");
                     }
                     else
                     {

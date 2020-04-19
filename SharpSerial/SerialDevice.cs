@@ -12,19 +12,25 @@ namespace SharpSerial
     // https://www.vgies.com/a-reliable-serial-port-in-c/
     public class SerialDevice : ISerialStream, IDisposable
     {
-        private readonly Action<Exception> handler;
         private readonly SerialPort serial;
         private readonly List<byte> list;
         private readonly Queue<byte> queue;
-        private byte[] buffer;
+        private readonly byte[] buffer;
 
-        public SerialDevice(object settings, Action<Exception> handler = null)
+        public SerialDevice(object settings)
         {
-            this.handler = handler;
+            this.buffer = new byte[256];
             this.list = new List<byte>(256);
             this.queue = new Queue<byte>(256);
             this.serial = new SerialPort();
+
+            //init serial port and launch async reader
             SerialSettings.CopyProperties(settings, serial);
+            serial.Open();
+            //DiscardInBuffer not needed by FTDI and ignored by com0com
+            var stream = serial.BaseStream;
+            //unavailable after closed so pass it
+            stream.BeginRead(buffer, 0, buffer.Length, ReadCallback, stream);
         }
 
         public void Dispose()
@@ -35,7 +41,6 @@ namespace SharpSerial
 
         public void Write(byte[] data)
         {
-            InitAndOpenPort();
             var stream = serial.BaseStream;
             stream.Write(data, 0, data.Length);
             //always flush to allow sync by following read available
@@ -44,7 +49,6 @@ namespace SharpSerial
 
         public byte[] Read(int size, int eop, int toms)
         {
-            InitAndOpenPort();
             list.Clear();
             var dl = DateTime.Now.AddMilliseconds(toms);
             while (true)
@@ -74,20 +78,6 @@ namespace SharpSerial
             }
         }
 
-        private void InitAndOpenPort()
-        {
-            if (buffer == null) //init flag
-            {
-                Tools.Assert(!serial.IsOpen, "Port {0} already open", serial.PortName);
-                serial.Open(); //must not be already open
-                buffer = new byte[256];
-                //DiscardInBuffer not needed by FTDI and ignored by com0com
-                var stream = serial.BaseStream;
-                //unavailable after closed so pass it
-                stream.BeginRead(buffer, 0, buffer.Length, ReadCallback, stream);
-            }
-        }
-
         private void ReadCallback(IAsyncResult ar)
         {
             Tools.Try(() =>
@@ -101,7 +91,7 @@ namespace SharpSerial
                     lock (queue) for (var i = 0; i < count; i++) queue.Enqueue(buffer[i]);
                     stream.BeginRead(buffer, 0, buffer.Length, ReadCallback, stream);
                 }
-            }, handler);
+            });
         }
     }
 }

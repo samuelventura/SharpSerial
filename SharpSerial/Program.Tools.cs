@@ -1,22 +1,49 @@
 ﻿using System;
 using System.Text;
+using System.Diagnostics;
 
 namespace SharpSerial
 {
     public static class Stdio
     {
+        private static bool traceTimed = false;
+        private static bool traceEnabled = false;
         private static readonly object locker = new object();
+
+        public static string ReadLine() => Console.ReadLine();
 
         public static void WriteLine(string format, params object[] args)
         {
             lock (locker)
             {
-                Console.WriteLine(format, args);
+                Console.Out.WriteLine(format, args);
                 Console.Out.Flush();
             }
         }
 
-        public static string ReadLine() => Console.ReadLine();
+        [Conditional("DEBUG")]
+        public static void Trace(string format, params object[] args)
+        {
+            if (traceEnabled)
+            {
+                lock (locker)
+                {
+                    if (traceTimed)
+                    {
+                        Console.Error.Write(DateTime.Now.ToString("HH:mm:ss.fff"));
+                        Console.Error.Write(" ");
+                    }
+                    Console.Error.WriteLine(format, args);
+                    Console.Error.Flush();
+                }
+            }
+        }
+
+        public static void EnableTrace(bool enable, bool timed)
+        {
+            traceTimed = timed;
+            traceEnabled = enable;
+        }
     }
 
     public static class Tools
@@ -28,17 +55,17 @@ namespace SharpSerial
 
         public static void ExceptionHandler(Exception ex)
         {
+            Try(() => Stdio.Trace("!{0}", ex.ToString()));
             Try(() => Stdio.WriteLine("!{0}", ex.ToString()));
             Environment.Exit(1);
         }
 
-        public static void AnswerHex(byte[] data)
+        public static string StringHex(byte[] data)
         {
             var sb = new StringBuilder();
             sb.Append("<");
             foreach (var b in data) sb.Append(b.ToString("X2"));
-            var txt = sb.ToString();
-            Stdio.WriteLine(txt);
+            return sb.ToString();
         }
 
         public static byte[] ParseHex(string text)
@@ -71,18 +98,15 @@ namespace SharpSerial
             return Convert.ChangeType(text, type);
         }
 
-        public static void Try(Action action, Action<Exception> handler = null)
+        public static void Try(Action action)
         {
             try
             {
-                action?.Invoke();
+                action.Invoke();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                if (handler != null)
-                {
-                    Try(() => { handler(ex); });
-                }
+                //no clear use case for cleanup exception
             }
         }
 

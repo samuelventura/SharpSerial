@@ -6,6 +6,17 @@ Process Isolated Serial Port
 
 No documentation yet. Resort to tests at SharpSerial.Test subproject for guidance.
 
+## Development Notes
+
+- Will use default encoding because there is natural way to set it to all stdio streams
+- On client side stdin.encode is ro, on the remote side stderr.encode is not available
+- Utf8 should be default although ascii is enough for most stdio trafic
+- Exception trafic may need utf8 encoding if running in non english Windows
+- Unhandled exceptions are logged to stdout prefixed with ! and followed by exit(1)
+- Client side api retrows exceptions received over stdout
+- cleanup exceptions are ignored because no clear use case for them
+- No logging outside the available stdio (no files)
+
 ## Development Setup
 
 - Windows 10 Pro 64x (Windows only)
@@ -25,8 +36,13 @@ dotnet publish SharpSerial -c Release
 dotnet test SharpSerial.Test
 #console output for test cases
 dotnet test SharpSerial.Test -v n
+#test in release mode
+dotnet test SharpSerial.Test -c Release
 #individual tests
-dotnet test SharpSerial.Test --filter FullyQualifiedName~CopyPropertyTest
+dotnet test SharpSerial.Test --filter FullyQualifiedName~SettingsTest
+dotnet test SharpSerial.Test --filter FullyQualifiedName~ExceptionTest
+dotnet test SharpSerial.Test --filter FullyQualifiedName~Com0ComTest
+dotnet test SharpSerial.Test --filter FullyQualifiedName~DualFtdiTest
 #run (close with enter)
 dotnet run -p SharpSerial
 ```

@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace SharpSerial.Test
 {
-    public class CopyPropertyTest
+    public class SettingsTest
     {
 
         [Test]
