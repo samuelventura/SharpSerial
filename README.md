@@ -8,7 +8,7 @@ No documentation yet. Resort to tests at SharpSerial.Test subproject for guidanc
 
 ## Development Notes
 
-- Will use default encoding because there is natural way to set it to all stdio streams
+- Will use default encoding because there is no natural way to set it to all stdio streams
 - On client side stdin.encode is ro, on the remote side stderr.encode is not available
 - Utf8 should be default although ascii is enough for most stdio trafic
 - Exception trafic may need utf8 encoding if running in non english Windows

@@ -5,28 +5,31 @@ namespace SharpSerial.Test
 {
     public class DualFtdiTest
     {
+        private const string COM1 = "COM10";
+        private const string COM2 = "COM11";
+
         [Test]
         public void DeviceDiscardFtdiTest()
         {
-            TestTools.DeviceDiscard("COM10", "COM11");
+            TestTools.DeviceDiscard(COM1, COM2);
         }
 
         [Test]
         public void DeviceBasicFtdiTest()
         {
-            TestTools.DeviceBasic("COM10", "COM11");
+            TestTools.DeviceBasic(COM1, COM2);
         }
 
         [Test]
         public void ProcessDiscardFtdiTest()
         {
-            TestTools.ProcessDiscard("COM10", "COM11");
+            TestTools.ProcessDiscard(COM1, COM2);
         }
 
         [Test]
         public void ProcessBasicFtdiTest()
         {
-            TestTools.ProcessBasic("COM10", "COM11");
+            TestTools.ProcessBasic(COM1, COM2);
         }
     }
 }

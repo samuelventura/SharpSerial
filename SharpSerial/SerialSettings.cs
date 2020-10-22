@@ -44,6 +44,7 @@ namespace SharpSerial
 
     public class PortNameConverter : TypeConverter
     {
+        //windows only?
         private readonly Regex re = new Regex(@"[^a-zA-Z0-9_]");
 
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context)

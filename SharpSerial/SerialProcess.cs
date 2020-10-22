@@ -95,7 +95,7 @@ namespace SharpSerial
             Tools.Assert(text.StartsWith("<"), "First char < expected for {0}:{1}", text.Length, text);
             Tools.Assert(text.Length % 2 == 1, "Odd length expected for {0}:{1}", text.Length, text);
             var bytes = new byte[text.Length / 2];
-            for (int i = 0; i < bytes.Length; i++)
+            for (var i = 0; i < bytes.Length; i++)
             {
                 var b2 = text.Substring(1 + i * 2, 2);
                 bytes[i] = Convert.ToByte(b2, 16);

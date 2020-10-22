@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 
 namespace SharpSerial
 {
@@ -7,7 +6,7 @@ namespace SharpSerial
     {
         static void Main(string[] args)
         {
-            AppDomain.CurrentDomain.UnhandledException += Tools.ExceptionHandler;
+            Tools.SetupGlobalCatcher();
 
             Stdio.EnableTrace(true, true);
 
