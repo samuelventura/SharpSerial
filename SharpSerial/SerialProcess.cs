@@ -112,7 +112,7 @@ namespace SharpSerial
         [Conditional("DEBUG")]
         private void ForwardStandardError(StreamReader reader)
         {
-            Task.Run(() =>
+            Task.Factory.StartNew(() =>
             {
                 var line = reader.ReadLine();
                 while (line != null)
