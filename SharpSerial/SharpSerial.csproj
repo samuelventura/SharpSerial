@@ -4,12 +4,13 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net40</TargetFramework>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <Version>1.0.5.0</Version>
+    <Authors>Samuel Ventura</Authors>
+    <Copyright>Copyright © Samuel Ventura 2020</Copyright>
     <PackageId>SharpSerial</PackageId>
-    <PackageVersion>1.0.5.0</PackageVersion>
     <PackageProjectUrl>https://github.com/samuelventura/SharpSerial</PackageProjectUrl>  
     <PackageLicenseExpression>MIT</PackageLicenseExpression>  
     <PackageTags>Serial Isolation</PackageTags>  
-    <Authors>Samuel Ventura</Authors>
     <Description>C# Process Isolated Serial Port</Description>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>    
   </PropertyGroup>
