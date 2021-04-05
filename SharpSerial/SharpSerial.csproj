@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net40</TargetFramework>
+    <TargetFrameworks>net40;net5.0</TargetFrameworks>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Version>1.0.5.0</Version>
     <Authors>Samuel Ventura</Authors>
@@ -15,4 +15,10 @@
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>    
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>anycpu</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+    <PackageReference Include="System.IO.Ports" Version="5.0.1" />
+  </ItemGroup>
 </Project>
