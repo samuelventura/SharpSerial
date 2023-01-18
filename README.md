@@ -20,10 +20,10 @@ No documentation yet. Resort to tests at SharpSerial.Test subproject for guidanc
 ## Development Setup
 
 - Windows 10 Pro 64x (Windows only)
-- VS Code (bash terminal from Git4Win)
-- Net Core SDK 3.1.201
+- VS Code (Command prompt)
+- .NET 6.0 SDK 6.0.405
 - com0com-2.2.2.0-x64-fre-signed COM98/99
-- Startech ICUSB2322F COM10/11
+- Startech ICUSB2324I COM3/4
 
 ## Development CLI
 

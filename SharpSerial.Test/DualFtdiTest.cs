@@ -5,8 +5,8 @@ namespace SharpSerial.Test
 {
     public class DualFtdiTest
     {
-        private const string COM1 = "COM10";
-        private const string COM2 = "COM11";
+        private const string COM1 = "COM3";
+        private const string COM2 = "COM4";
 
         [Test]
         public void DeviceDiscardFtdiTest()
