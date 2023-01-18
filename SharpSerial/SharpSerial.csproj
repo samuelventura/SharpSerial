@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net40;net6.0</TargetFrameworks>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <Version>1.0.6.0</Version>
+    <Version>1.0.7.0</Version>
     <Authors>Samuel Ventura</Authors>
     <Copyright>Copyright © Samuel Ventura 2020</Copyright>
     <PackageId>SharpSerial</PackageId>
