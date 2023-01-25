@@ -1,4 +1,5 @@
 ﻿using System;
+using SharpModbus.Serial;
 
 namespace SharpSerial
 {

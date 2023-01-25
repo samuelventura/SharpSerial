@@ -44,13 +44,13 @@ dotnet test SharpSerial.Test --filter FullyQualifiedName~ExceptionTest
 dotnet test SharpSerial.Test --filter FullyQualifiedName~Com0ComTest
 dotnet test SharpSerial.Test --filter FullyQualifiedName~DualFtdiTest
 #run (close with enter)
-dotnet run -p SharpSerial
+dotnet run --project SharpSerial
 ```
 
 ## TODO
 
 - [ ] Improve documentation and samples
 - [ ] Support Linux/macOS once proper dev environment
-- [ ] Support .NET Core targets once exe is packed
+- [ ] Support .NET 6.0 targets once sub process is handled correctly
 - [ ] Research issue: on fast close/open com0com wont clear inbuf
 - [ ] Research issue: on fast close/open ftdi wont release port
