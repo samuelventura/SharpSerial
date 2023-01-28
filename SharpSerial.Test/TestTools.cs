@@ -3,6 +3,7 @@ using System.Text;
 using System.IO.Ports;
 using System.Threading;
 using NUnit.Framework;
+using SharpModbus.Serial;
 
 namespace SharpSerial.Test
 {

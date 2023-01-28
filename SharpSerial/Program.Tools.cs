@@ -71,6 +71,12 @@ namespace SharpSerial
                 //no clear use case for cleanup exception
             }
         }
+        
+        public static void Dispose(IDisposable disposable)
+        {
+            try { if (disposable != null) disposable.Dispose(); }
+            catch (Exception) { }
+        }
 
         public static Exception Make(string format, params object[] args)
         {

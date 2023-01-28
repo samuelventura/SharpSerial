@@ -1,7 +1,7 @@
-using System;
 using System.IO;
 using System.Diagnostics;
 using NUnit.Framework;
+using SharpModbus.Serial;
 
 namespace SharpSerial.Test
 {

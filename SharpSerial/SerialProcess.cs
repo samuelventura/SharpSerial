@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using SharpModbus.Serial;
 
 namespace SharpSerial
 {
@@ -23,9 +24,7 @@ namespace SharpSerial
                 if (args.Length > 0) args.Append(" ");
                 args.AppendFormat("{0}={1}", p.Name, p.GetValue(ss, null).ToString());
             }
-            //.net6.0 has .dll extension
             var location = typeof(SerialProcess).Assembly.Location;
-            location = Path.ChangeExtension(location, ".exe");
             process = new Process();
             process.StartInfo = new ProcessStartInfo()
             {

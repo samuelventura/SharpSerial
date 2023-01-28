@@ -1,6 +1,6 @@
-using System;
 using System.IO.Ports;
 using NUnit.Framework;
+using SharpModbus.Serial;
 
 namespace SharpSerial.Test
 {
